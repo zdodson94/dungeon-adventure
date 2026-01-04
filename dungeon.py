@@ -87,11 +87,14 @@ class MerchantRoom(Room):
       Supernova()
     ]
     self.not_defeated = True
+    self.antagonized = False
   def describe(self, player):
-    if self.not_defeated:
+    if self.not_defeated and not self.antagonized:
       slow_print('A warped halo of light gazes through you from the void.')
       slow_print('"Iron for wares..."')
       slow_print('The voice rends the silence and shakes your core...')
+    elif self.antagonized:
+      slow_print('Suddenly you are small, and you gaze up at something your mind cannot fathom...')
     else:
       slow_print('This room contains nothing.')
 

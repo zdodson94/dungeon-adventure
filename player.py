@@ -161,6 +161,7 @@ class Player:
                 return
       self.check_level_up()
     elif isinstance(room, MerchantRoom):
+      room.antagonized = True
       slow_print('You challenge the ring of light.')
       slow_print('Suddenly you are small, and you gaze up at something your mind cannot fathom...')
       room.monsters = [BlackHole()]
@@ -214,8 +215,10 @@ class Player:
   def look_around(self, labyrinth):
     room = labyrinth.get_room(self.location)
     if isinstance(room, MerchantRoom):
-      if room.not_defeated:
+      if room.not_defeated and not room.antagonized:
         self.shop(room)
+      elif room.antagonized:
+        self.battle(labyrinth)
       else:
         room.describe(self)
     else:
@@ -385,6 +388,9 @@ class Player:
   def assign_attribute_points(self, *args):
     if self.attribute_points > 0:
       while self.attribute_points > 0:
+        slow_print('Current attributes:')
+        for attr, val in self.attributes.items():
+          slow_print(f' - {attr} : {val:>2d} ({self.get_attribute_modifier(attr):+d})')
         slow_print(f'You have {self.attribute_points} AP.')
         choice = slow_input(
           'What attribute would you like to increase? [(l)um, (s)iz, (v)el, (f)inish]',
@@ -403,7 +409,7 @@ class Player:
         self.attribute_points -= amount
         if choice == 'SIZ':
           self.hp += amount * health_per_con_point
-        slow_print(f'{choice} is now {self.attributes[choice]}. You have {self.attribute_points} points left.')
+        slow_print(f'{choice} is now {self.attributes[choice]} ({self.get_attribute_modifier(choice):+d}). You have {self.attribute_points} points left.')
       self.assign_max_hp()
     else:
       slow_print('You do not have any points to assign!')
@@ -449,15 +455,17 @@ class Player:
                   slow_print(f'You have already purchased {item.name}!')
                   continue
               if 0 <= choice < len(room.items):
-                quantity = slow_input('How many would you like to buy? [0 - 20]', int, allowable_inputs=list(range(21))) if item.is_consumable else 1
-                if quantity == 0:
-                  continue
-                if self.iron >= item.price * quantity:
-                  slow_print(f'You purchase {str(quantity) + " " if item.is_consumable else ""}{item.name} for {item.price * quantity} Fe...')
-                  self.inventory.add_item(item, number=quantity)
-                  self.iron -= item.price * quantity
-                  slow_print(f'Remaining iron: {self.iron}')
-                  continue
+                if self.iron >= item.price:
+                  num_can_afford = floor(self.iron / item.price)
+                  quantity = slow_input(f'How many would you like to buy? [0 - {num_can_afford}]', int, allowable_inputs=list(range(num_can_afford+1))) if item.is_consumable else 1
+                  if quantity == 0:
+                    continue
+                  if self.iron >= item.price * quantity:
+                    slow_print(f'You purchase {str(quantity) + " " if item.is_consumable else ""}{item.name} for {item.price * quantity} Fe...')
+                    self.inventory.add_item(item, number=quantity)
+                    self.iron -= item.price * quantity
+                    slow_print(f'Remaining iron: {self.iron}')
+                    continue
                 else:
                   slow_print("You don't have enough iron for that!")
                   continue

@@ -28,7 +28,7 @@ class Elixir(Item):
     new_hp = min(player.max_hp, player.hp + heal_amount)
     slow_print(f'You heal {new_hp - player.hp} hp!')
     player.hp = new_hp
-    slow_print(f'Current HP: {player.hp}')
+    slow_print(f'Current HP: {player.hp}/{player.max_hp}')
 
   def describe(self):
     return 'Consumable : +2d4+2 HP'
@@ -48,7 +48,7 @@ class SuperElixir(Item):
     new_hp = min(player.max_hp, player.hp + heal_amount)
     slow_print(f'You heal {new_hp - player.hp} hp!')
     player.hp = new_hp
-    slow_print(f'Current HP: {player.hp}')
+    slow_print(f'Current HP: {player.hp}/{player.max_hp}')
 
   def describe(self):
     return 'Consumable : +4d4+4 HP'
@@ -68,7 +68,7 @@ class MegaElixir(Item):
     new_hp = min(player.max_hp, player.hp + heal_amount)
     slow_print(f'You heal {new_hp - player.hp} hp!')
     player.hp = new_hp
-    slow_print(f'Current HP: {player.hp}')
+    slow_print(f'Current HP: {player.hp}/{player.max_hp}')
 
   def describe(self):
     return 'Consumable : +6d4+6 HP'
